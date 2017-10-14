@@ -1,4 +1,5 @@
 import { loadBackgroundSprites, loadMarioSprite } from './sprites';
+import Compositor from './compositor';
 
 import level from './../levels/1-1.json';
 
@@ -21,19 +22,6 @@ function drawBackground(background, context, spriteSheet) {
 const canvas = document.getElementById('screen');
 const context = canvas.getContext('2d');
 
-class Compositor {
-    constructor() {
-        // Массив функций
-        this.layers = [];
-    }
-
-    draw(context) {
-        this.layers.forEach(layer => {
-            layer(context);
-        });
-    }
-}
-
 function createBackgroundLayer(backgrounds, sprites) {
     const buffer = document.createElement('canvas');
     buffer.width = 256;
@@ -48,25 +36,35 @@ function createBackgroundLayer(backgrounds, sprites) {
     };
 }
 
+function createSpriteLayer(sprite, pos) {
+    return function drawSpriteLayer(context) {
+        sprite.draw('idle', context, pos.x, pos.y);
+    }
+}
+
 Promise.all([
     loadMarioSprite(),
     loadBackgroundSprites()
 ]).then(([marioSprite, backgroundSprites]) => {
     const comp = new Compositor();
 
-    const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
-    comp.layers.push(backgroundLayer);
-
     const pos = {
         x: 64,
         y: 64
     }
 
+    const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
+    const spriteLayer = createSpriteLayer(marioSprite, pos);
+
+    comp.layers.push(backgroundLayer);
+    comp.layers.push(spriteLayer);
+
     function update() {
         comp.draw(context);
-        marioSprite.draw('idle', context, pos.x, pos.y);
+
         pos.x += 1;
         pos.y += 1;
+
         requestAnimationFrame(update);
     }
 
