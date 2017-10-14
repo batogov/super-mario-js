@@ -1,7 +1,5 @@
-import SpriteSheet from './sprite-sheet';
-import { loadImage } from './loaders';
+import { loadBackgroundSprites, loadMarioSprite } from './sprites';
 
-import tiles from './../img/tiles.png';
 import level from './../levels/1-1.json';
 
 /**
@@ -23,13 +21,13 @@ function drawBackground(background, context, spriteSheet) {
 const canvas = document.getElementById('screen');
 const context = canvas.getContext('2d');
 
-loadImage(tiles).then(image => {
-    const spriteSheet = new SpriteSheet(image, 16, 16);
-
-    spriteSheet.define('ground', 0, 0);
-    spriteSheet.define('sky', 3, 23);
-
+Promise.all([
+    loadMarioSprite(),
+    loadBackgroundSprites()
+]).then(([marioSprite, backgroundSprites]) => {
     level.backgrounds.forEach(background => {
-        drawBackground(background, context, spriteSheet);
+        drawBackground(background, context, backgroundSprites);
     });
-})
+
+    marioSprite.draw('idle', context, 64, 64);
+});
