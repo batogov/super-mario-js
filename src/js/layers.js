@@ -28,4 +28,10 @@ function createBackgroundLayer(backgrounds, sprites) {
     };
 }
 
-export { createBackgroundLayer };
+function createSpriteLayer(entity) {
+    return function drawSpriteLayer(context) {
+        entity.draw(context);
+    }
+}
+
+export { createBackgroundLayer, createSpriteLayer };

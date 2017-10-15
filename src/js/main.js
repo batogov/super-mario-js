@@ -1,5 +1,6 @@
-import { loadBackgroundSprites, loadMarioSprite } from './sprites';
-import { createBackgroundLayer } from './layers';
+import { loadBackgroundSprites } from './sprites';
+import { createBackgroundLayer, createSpriteLayer } from './layers';
+import { createMario } from './entities';
 
 import Compositor from './compositor';
 import Entity from './entity';
@@ -9,32 +10,13 @@ import level from './../levels/1-1.json';
 const canvas = document.getElementById('screen');
 const context = canvas.getContext('2d');
 
-function createSpriteLayer(entity) {
-    return function drawSpriteLayer(context) {
-        entity.draw(context);
-    }
-}
-
 Promise.all([
-    loadMarioSprite(),
+    createMario(),
     loadBackgroundSprites()
-]).then(([marioSprite, backgroundSprites]) => {
+]).then(([mario, backgroundSprites]) => {
     const comp = new Compositor();
 
     const gravity = 0.5;
-
-    const mario = new Entity();
-    mario.pos.set(64, 180);
-    mario.vel.set(2, -10);
-
-    mario.update = function updateMario() {
-        this.pos.x += this.vel.x;
-        this.pos.y += this.vel.y;
-    }
-
-    mario.draw = function drawMario() {
-        marioSprite.draw('idle', context, this.pos.x, this.pos.y);
-    }
 
     const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
     const spriteLayer = createSpriteLayer(mario);
